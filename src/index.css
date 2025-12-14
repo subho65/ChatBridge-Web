@@ -1,3 +1,58 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  /* Common Defaults */
+  --green-primary: #00a884;
+  --bubble-out: #005c4b;
+  --bubble-in: #202c33;
+}
+
+/* DARK MODE (Default) */
+[data-theme="dark"] {
+  --bg-main: #0c1317;       /* Very dark background */
+  --bg-sidebar: #111b21;    /* Sidebar background */
+  --bg-panel: #202c33;      /* Headers/Input */
+  --bg-hover: #2a3942;      /* Hover state */
+  --text-primary: #e9edef;
+  --text-secondary: #8696a0;
+  --border-color: #222d34;
+  --bubble-in: #202c33;
+  --bubble-out: #005c4b;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* LIGHT MODE */
+[data-theme="light"] {
+  --bg-main: #d1d7db;
+  --bg-sidebar: #ffffff;
+  --bg-panel: #f0f2f5;
+  --bg-hover: #f5f6f6;
+  --text-primary: #111b21;
+  --text-secondary: #667781;
+  --border-color: #e9edef;
+  --bubble-in: #ffffff;
+  --bubble-out: #d9fdd3; /* WhatsApp Light Green */
+  --shadow-color: rgba(0,0,0,0.1);
+}
+
+html, body, #root {
+  height: 100dvh;
+  width: 100%;
+  margin: 0;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+}
+
+/* Animations */
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+.animate-slide-in { animation: slideIn 0.2s cubic-bezier(0.1, 0.82, 0.25, 1) forwards; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 5px !important; }
+::-webkit-scrollbar-track { background: transparent !important; }
+::-webkit-scrollbar-thumb { background-color: var(--text-secondary) !important; opacity: 0.2; border-radius: 10px !important; }

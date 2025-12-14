@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- Green Background -->
-  <rect x="0" y="0" width="64" height="64" rx="16" fill="#00a884"/>
-  <!-- Phone/Chat Icon -->
-  <path d="M16 16h32v24a8 8 0 0 1-8 8H24l-8 8v-8h0a8 8 0 0 1-8-8V24a8 8 0 0 1 8-8z" fill="white"/>
-  <path d="M22 28a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm10 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm10 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" fill="#00a884"/>
-</svg>
