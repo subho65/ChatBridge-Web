@@ -3,44 +3,55 @@
 @tailwind utilities;
 
 :root {
-  /* Common Defaults */
+  /* SHARED COLORS */
   --green-primary: #00a884;
-  --bubble-out: #005c4b;
-  --bubble-in: #202c33;
+  --green-deep: #008069;
 }
 
-/* DARK MODE (Default) */
+/* --- DARK MODE (Default) --- */
 [data-theme="dark"] {
-  --bg-main: #0c1317;       /* Very dark background */
-  --bg-sidebar: #111b21;    /* Sidebar background */
-  --bg-panel: #202c33;      /* Headers/Input */
-  --bg-hover: #2a3942;      /* Hover state */
-  --text-primary: #e9edef;
-  --text-secondary: #8696a0;
+  --bg-main: #0c1317;        /* App Background */
+  --bg-sidebar: #111b21;     /* Sidebar List */
+  --bg-panel: #202c33;       /* Headers */
+  --bg-input: #2a3942;       /* Search/Chat Inputs */
+  --bg-hover: #202c33;       
+  
+  --text-primary: #ffffff;   /* Main Text */
+  --text-secondary: #8696a0; /* Subtitles/Icons */
+  
   --border-color: #222d34;
-  --bubble-in: #202c33;
-  --bubble-out: #005c4b;
-  --shadow-color: rgba(0,0,0,0.3);
+  
+  --bubble-in: #202c33;      /* Incoming Msg */
+  --bubble-out: #005c4b;     /* Outgoing Msg */
+  
+  --scroll-thumb: #37404a;
 }
 
-/* LIGHT MODE */
+/* --- LIGHT MODE (WhatsApp Classic) --- */
 [data-theme="light"] {
-  --bg-main: #d1d7db;
-  --bg-sidebar: #ffffff;
-  --bg-panel: #f0f2f5;
+  --bg-main: #d1d7db;        /* App Background (Behind app) */
+  --bg-sidebar: #ffffff;     /* Sidebar List */
+  --bg-panel: #f0f2f5;       /* Headers */
+  --bg-input: #ffffff;       /* Search/Chat Inputs */
   --bg-hover: #f5f6f6;
-  --text-primary: #111b21;
-  --text-secondary: #667781;
+  
+  --text-primary: #111b21;   /* Main Text (Dark) */
+  --text-secondary: #54656f; /* Subtitles/Icons (Gray) */
+  
   --border-color: #e9edef;
-  --bubble-in: #ffffff;
-  --bubble-out: #d9fdd3; /* WhatsApp Light Green */
-  --shadow-color: rgba(0,0,0,0.1);
+  
+  --bubble-in: #ffffff;      /* Incoming Msg (White) */
+  --bubble-out: #d9fdd3;     /* Outgoing Msg (Light Green) */
+  
+  --scroll-thumb: #ced0d1;
 }
 
+/* CORE LAYOUT */
 html, body, #root {
-  height: 100dvh;
+  height: 100dvh; 
   width: 100%;
   margin: 0;
+  padding: 0;
   background-color: var(--bg-main);
   color: var(--text-primary);
   overflow: hidden;
@@ -48,11 +59,14 @@ html, body, #root {
   inset: 0;
 }
 
-/* Animations */
-@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-.animate-slide-in { animation: slideIn 0.2s cubic-bezier(0.1, 0.82, 0.25, 1) forwards; }
-
-/* Custom Scrollbar */
+/* Scrollbar Styling */
 ::-webkit-scrollbar { width: 5px !important; }
 ::-webkit-scrollbar-track { background: transparent !important; }
-::-webkit-scrollbar-thumb { background-color: var(--text-secondary) !important; opacity: 0.2; border-radius: 10px !important; }
+::-webkit-scrollbar-thumb { background-color: var(--scroll-thumb) !important; border-radius: 10px !important; }
+
+/* Animations */
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.animate-slide-in { animation: slideIn 0.2s cubic-bezier(0.1, 0.82, 0.25, 1) forwards; }
+.animate-fade-in { animation: fadeIn 0.2s ease-out forwards; }

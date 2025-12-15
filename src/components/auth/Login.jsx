@@ -1,35 +1,35 @@
 import React, { useState } from 'react';
 import { Phone, Lock, ArrowRight, Loader2, UserPlus } from 'lucide-react';
+import { useUI } from '../../context/UIContext'; // Import Hook
 
 export default function LoginScreen({ onNext, onSwitchToRegister }) {
     const [phone, setPhone] = useState('');
     const [loading, setLoading] = useState(false);
+    const { showAlert } = useUI(); // Get custom alert
 
     const handlePhoneChange = (e) => {
-        // Only allow numbers and max 10 digits
         const val = e.target.value.replace(/\D/g, '');
-        if (val.length <= 10) {
-            setPhone(val);
-        }
+        if (val.length <= 10) setPhone(val);
     };
 
     const handleSubmit = async () => {
-        // 1. Basic Length Check
-        if (phone.length < 10) return alert("Please enter a valid 10-digit phone number");
+        // REPLACED ALERT
+        if (phone.length < 10) return showAlert("Please enter a valid 10-digit phone number");
 
-        // 2. Strict Indian Mobile Number Check (Starts with 6, 7, 8, or 9)
+        // Strict Regex Check (Indian Mobile)
         const indianMobileRegex = /^[6-9]\d{9}$/;
         if (!indianMobileRegex.test(phone)) {
-            return alert("Invalid Mobile Number! It must start with 6, 7, 8, or 9.");
+            // REPLACED ALERT
+            return showAlert("Invalid Mobile Number! It must start with 6, 7, 8, or 9.");
         }
 
         setLoading(true);
         await onNext(phone);
         setLoading(false);
     };
+
     return (
         <div className="min-h-full h-full w-full bg-[#111b21] flex flex-col items-center justify-center p-4">
-            {/* Brand Logo */}
             <div className="flex items-center gap-3 mb-8 text-white font-medium text-lg uppercase tracking-widest animate-fade-in">
                 <div className="w-10 h-10 bg-[#00a884] rounded-lg flex items-center justify-center shadow-lg">
                     <Lock className="text-white" fill="white" size={20} />
@@ -37,7 +37,6 @@ export default function LoginScreen({ onNext, onSwitchToRegister }) {
                 ChatBridge
             </div>
 
-            {/* Login Card */}
             <div className="bg-[#202c33] p-8 rounded-xl w-full max-w-md border-t-4 border-[#00a884] space-y-6 shadow-2xl animate-slide-in">
                 <div className="text-center sm:text-left">
                     <h2 className="text-2xl text-[#e9edef] font-light">Welcome Back</h2>
@@ -69,14 +68,12 @@ export default function LoginScreen({ onNext, onSwitchToRegister }) {
                     {loading ? <Loader2 className="animate-spin" /> : <>LOGIN <ArrowRight size={18} /></>}
                 </button>
 
-                {/* DIVIDER */}
                 <div className="flex items-center gap-3 my-4">
                     <div className="h-[1px] bg-[#2a3942] flex-1"></div>
                     <span className="text-[#8696a0] text-xs uppercase">OR</span>
                     <div className="h-[1px] bg-[#2a3942] flex-1"></div>
                 </div>
 
-                {/* CREATE ACCOUNT BUTTON */}
                 <button
                     onClick={onSwitchToRegister}
                     className="w-full bg-[#2a3942] hover:bg-[#37404a] text-[#00a884] font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors border border-[#00a884]/20"
@@ -84,10 +81,6 @@ export default function LoginScreen({ onNext, onSwitchToRegister }) {
                     <UserPlus size={18} /> CREATE AN ACCOUNT
                 </button>
             </div>
-
-            <p className="text-[#8696a0] text-xs mt-8 absolute bottom-4 opacity-50">
-                End-to-end encrypted protocol emulation
-            </p>
         </div>
     );
 }

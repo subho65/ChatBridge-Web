@@ -1,35 +1,41 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 export const useAudioRecorder = () => {
     const [isRecording, setIsRecording] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
     const [recordingTime, setRecordingTime] = useState(0);
+
     const mediaRecorderRef = useRef(null);
     const chunksRef = useRef([]);
     const timerRef = useRef(null);
+    const streamRef = useRef(null);
 
-    // 1. Determine supported MIME type
+    // 1. Helper: Determine supported MIME type
     const getMimeType = () => {
         const types = [
             "audio/webm;codecs=opus",
-            "audio/mp4",
+            "audio/mp4", // Safari
             "audio/aac",
-            "audio/webm"
+            "audio/webm",
+            "audio/ogg"
         ];
         for (const type of types) {
             if (MediaRecorder.isTypeSupported(type)) return type;
         }
-        return ""; // Fallback
+        return ""; // Let browser choose default
     };
 
+    // 2. Start Recording
     const startRecording = useCallback(async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            streamRef.current = stream;
+
             const mimeType = getMimeType();
+            // Safari sometimes fails if options are passed empty, so we conditionally pass them
+            const options = mimeType ? { mimeType } : undefined;
 
-            const mediaRecorder = new MediaRecorder(stream, {
-                mimeType: mimeType || undefined
-            });
-
+            const mediaRecorder = new MediaRecorder(stream, options);
             mediaRecorderRef.current = mediaRecorder;
             chunksRef.current = [];
 
@@ -41,19 +47,22 @@ export const useAudioRecorder = () => {
 
             mediaRecorder.start(1000); // Collect chunks every second
             setIsRecording(true);
+            setIsPaused(false);
+            setRecordingTime(0);
 
-            // Timer without memory leak risk
-            const startTime = Date.now();
+            // Start Timer
             timerRef.current = setInterval(() => {
-                setRecordingTime(Math.floor((Date.now() - startTime) / 1000));
+                setRecordingTime((prev) => prev + 1);
             }, 1000);
 
         } catch (error) {
             console.error("Error accessing microphone:", error);
-            alert("Microphone access denied.");
+            // You might want to handle this error in the UI layer
+            throw error;
         }
     }, []);
 
+    // 3. Stop Recording (Returns the Blob)
     const stopRecording = useCallback(() => {
         return new Promise((resolve) => {
             if (!mediaRecorderRef.current) return resolve(null);
@@ -65,12 +74,20 @@ export const useAudioRecorder = () => {
                 const blob = new Blob(chunksRef.current, { type: mimeType });
 
                 // Cleanup tracks
-                recorder.stream.getTracks().forEach(track => track.stop());
+                if (streamRef.current) {
+                    streamRef.current.getTracks().forEach(track => track.stop());
+                }
 
-                // Cleanup timer
+                // Cleanup timer & state
                 clearInterval(timerRef.current);
-                setRecordingTime(0);
                 setIsRecording(false);
+                setIsPaused(false);
+                setRecordingTime(0);
+
+                // Clear refs
+                mediaRecorderRef.current = null;
+                streamRef.current = null;
+                chunksRef.current = [];
 
                 resolve(blob);
             };
@@ -79,5 +96,62 @@ export const useAudioRecorder = () => {
         });
     }, []);
 
-    return { isRecording, recordingTime, startRecording, stopRecording };
+    // 4. Cancel Recording (Discards data)
+    const cancelRecording = useCallback(() => {
+        if (mediaRecorderRef.current) {
+            // Remove onstop handler so it doesn't try to process data
+            mediaRecorderRef.current.onstop = null;
+            mediaRecorderRef.current.stop();
+        }
+
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+        }
+
+        clearInterval(timerRef.current);
+        setIsRecording(false);
+        setIsPaused(false);
+        setRecordingTime(0);
+
+        mediaRecorderRef.current = null;
+        streamRef.current = null;
+        chunksRef.current = [];
+    }, []);
+
+    // 5. Toggle Pause/Resume
+    const togglePause = useCallback(() => {
+        if (!mediaRecorderRef.current) return;
+
+        if (isPaused) {
+            mediaRecorderRef.current.resume();
+            setIsPaused(false);
+            timerRef.current = setInterval(() => {
+                setRecordingTime((prev) => prev + 1);
+            }, 1000);
+        } else {
+            mediaRecorderRef.current.pause();
+            setIsPaused(true);
+            clearInterval(timerRef.current);
+        }
+    }, [isPaused]);
+
+    // 6. Cleanup on Unmount
+    useEffect(() => {
+        return () => {
+            clearInterval(timerRef.current);
+            if (streamRef.current) {
+                streamRef.current.getTracks().forEach(track => track.stop());
+            }
+        };
+    }, []);
+
+    return {
+        isRecording,
+        isPaused,
+        recordingTime,
+        startRecording,
+        stopRecording,
+        cancelRecording,
+        togglePause
+    };
 };

@@ -1,15 +1,19 @@
 import React, { useState, useRef } from 'react';
 import { Smile, Paperclip, Mic, Send, X, StopCircle } from 'lucide-react';
-import EmojiPicker from 'emoji-picker-react'; // Make sure npm install emoji-picker-react
+import EmojiPicker from 'emoji-picker-react';
 import { useAudioRecorder } from '../../hooks/useAudioRecorder';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { storage } from '../../lib/firebase'; // Import storage!
+import { storage } from '../../lib/firebase';
+import { useUI } from '../../context/UIContext'; // 1. Import UI Context
 
 export default function ChatInput({ chatId, currentUser, onSend }) {
     const [text, setText] = useState('');
     const [showEmoji, setShowEmoji] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = useRef(null);
+
+    // 2. Get Custom Alert
+    const { showAlert } = useUI();
 
     // Audio Hook
     const { isRecording, recordingTime, startRecording, stopRecording } = useAudioRecorder();
@@ -48,7 +52,7 @@ export default function ChatInput({ chatId, currentUser, onSend }) {
             onSend(url, type);
         } catch (err) {
             console.error(err);
-            alert("Upload failed");
+            showAlert("Upload failed. Please try again."); // 3. Use Custom Alert
         } finally {
             setIsUploading(false);
         }
@@ -66,6 +70,7 @@ export default function ChatInput({ chatId, currentUser, onSend }) {
                 onSend(url, 'audio');
             } catch (error) {
                 console.error("Audio upload failed", error);
+                showAlert("Audio upload failed."); // Added alert here too
             } finally {
                 setIsUploading(false);
             }
